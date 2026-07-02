@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phone Status</string>
+    <string name="overlay_channel_name">Phone Status Overlay</string>
+    <string name="notification_title">Phone status overlay running</string>
+</resources>
