@@ -1,6 +1,8 @@
 # karoo-phonestatus
 
-A small [Hammerhead Karoo](https://www.hammerhead.io/) extension that displays the **phone connection status** as a native-looking indicator in the status bar.
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
+A small, open-source [Hammerhead Karoo](https://www.hammerhead.io/) extension that displays the **phone connection status** as a native-looking indicator in the status bar.
 
 Built on [`karoo-ext`](https://github.com/hammerheadnav/karoo-ext). Compatible with Karoo 2 (Android 8) and Karoo 3 (Android 12).
 
@@ -11,7 +13,7 @@ Built on [`karoo-ext`](https://github.com/hammerheadnav/karoo-ext). Compatible w
 
 ## Features
 - **Adaptive Appearance**: The icon is white on the dark system launcher and black on the light ride screens, matching native icons perfectly.
-- **Connection Awareness**: Turns **amber** if the phone connection is lost, so you never miss a notification or sync issue.
+- **Connection Awareness**: Turns into a bold **red, slashed phone** if the connection is lost, so you never miss a notification or sync issue.
 - **Smart Positioning**: Automatically slides to follow other status icons (like Wifi or Battery) as they appear or disappear.
 - **Zero Configuration**: Once permissions are granted, it runs automatically on every boot.
 
@@ -72,5 +74,12 @@ The indicator mirrors the real status bar:
 - [karoo-powerbar](https://github.com/timklge/karoo-powerbar) — inspiration for overlay patterns
 - [awesome-karoo](https://github.com/timklge/awesome-karoo) — community extensions
 
+## Contributing
+
+Contributions are welcome — issues and pull requests are appreciated. To build locally you'll need JDK 17 and the Android SDK; `./gradlew :app:assembleDebug` produces a debug APK.
+
+> **Disclaimer**: This is an independent, open-source project and is not affiliated with, endorsed by, or supported by Hammerhead Navigation Inc. or SRAM. The phone-connection signal is read from a private Karoo system service and may break on future Karoo OS updates (see [How it works](#how-it-works)).
+
 ## License
-Apache 2.0. See [LICENSE](LICENSE).
+
+Licensed under the Apache License, Version 2.0 — Copyright 2026 alifib. See [LICENSE](LICENSE).
