@@ -2,6 +2,7 @@
   "id": "io.alifib.karoophonestatus",
   "name": "Phone Status",
   "version": "0.1.0",
+  "versionCode": 1,
   "developer": "alifib",
   "license": "MIT",
   "summary": "Native phone connection status indicator for Karoo.",
@@ -10,6 +11,6 @@
     "utility",
     "status"
   ],
-  "apkUrl": "https://github.com/alifib/karoo-phonestatus/releases/latest/download/app-debug.apk",
+  "apkUrl": "https://github.com/alifib/karoo-phonestatus/releases/latest/download/karoo-phonestatus.apk",
   "updateUrl": "https://raw.githubusercontent.com/alifib/karoo-phonestatus/main/karoo-app-manifest.json"
 }
