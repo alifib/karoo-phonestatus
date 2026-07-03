@@ -27,12 +27,30 @@ jobs:
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
+      - name: Compute version from tag
+        id: version
+        run: |
+          # Validate tag matches vX.Y.Z (semver, digits only)
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ERROR: tag '$GITHUB_REF_NAME' does not match required format vX.Y.Z" >&2
+            exit 1
+          fi
+          # Strip the leading 'v' (e.g. v0.3.0 → 0.3.0)
+          VERSION_NAME="${GITHUB_REF_NAME#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NAME"
+          VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
+          echo "name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+
       - name: Build with Gradle
         env:
           # GITHUB_TOKEN can read GitHub Packages (incl. karoo-ext) within Actions.
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :app:assembleRelease
+        run: |
+          ./gradlew :app:assembleRelease \
+            -PversionCode=${{ steps.version.outputs.code }} \
+            -PversionName=${{ steps.version.outputs.name }}
 
       - name: Rename APK
         run: mv app/build/outputs/apk/release/app-release-unsigned.apk karoo-phonestatus.apk
