@@ -7,18 +7,16 @@
 
     <!-- Foreground service so the overlay keeps running during a ride. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@drawable/ic_extension_logo"
         android:label="@string/app_name"
         android:theme="@style/Theme.KarooPhoneStatus"
-        tools:targetApi="34">
+        tools:targetApi="33">
 
         <!-- Launcher activity: appears in the Karoo app menu, handles the
-             one-time "draw over other apps" permission, then starts the service. -->
+             one-time permissions, then starts the service. -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -28,15 +26,39 @@
             </intent-filter>
         </activity>
 
-        <!-- Overlay service. specialUse type; declare a justification if you
-             ever upload to Play, not needed for Karoo sideloading. -->
+        <!-- Overlay foreground service. -->
         <service
             android:name=".PhoneStatusOverlayService"
-            android:foregroundServiceType="specialUse"
-            android:exported="false">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Displays phone connection status overlay during rides" />
+            android:exported="false" />
+
+        <!-- Watches the systemui status bar so the indicator mirrors it
+             (visibility + position). Read-only; takes no actions. -->
+        <service
+            android:name=".StatusBarMonitorService"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            tools:ignore="AccessibilityPolicy">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Karoo extension registration: the Karoo system binds this service
+             at boot, which auto-starts the overlay service. -->
+        <service
+            android:name=".PhoneStatusExtension"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="io.hammerhead.karooext.KAROO_EXTENSION" />
+            </intent-filter>
+            <meta-data
+                android:name="io.hammerhead.karooext.EXTENSION_INFO"
+                android:resource="@xml/extension_info" />
         </service>
 
     </application>

@@ -3,4 +3,5 @@
     <string name="app_name">Phone Status</string>
     <string name="overlay_channel_name">Phone Status Overlay</string>
     <string name="notification_title">Phone status overlay running</string>
+    <string name="accessibility_description">Reads the status bar to place the phone-connection indicator next to the other status icons and hide it when the status bar is hidden. It only observes the status bar; it takes no actions.</string>
 </resources>
