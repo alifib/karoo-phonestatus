@@ -26,71 +26,97 @@ import androidx.core.net.toUri
  */
 class MainActivity : ComponentActivity() {
 
+    // The settings screens return by simply resuming this activity, so the
+    // re-check lives entirely in onResume(); these launchers just need to bring
+    // us back.
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
-    ) { onReturn() }
+    ) { }
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
-    ) { onReturn() }
+    ) { }
+
+    // The permission prompt currently on screen, and which permission it targets,
+    // so onResume() can avoid re-stacking an identical dialog.
+    private var permissionDialog: AlertDialog? = null
+    private var dialogKey: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         renderStatus()
-        // Delay permission request slightly to ensure activity is visible
-        window.decorView.post {
-            requestNextMissingPermission()
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        renderStatus()
-    }
-
-    private fun onReturn() {
-        if (canDrawOverlays()) startOverlayService()
+        // onResume is the single re-check point: it runs on launch, when the app
+        // is brought back to the foreground, and when returning from the settings
+        // screens. That means a permission revoked while we were backgrounded
+        // (which does not always kill the process) is caught and re-prompted on
+        // the next launch, instead of only updating the status text.
         renderStatus()
         requestNextMissingPermission()
     }
 
+    override fun onDestroy() {
+        dismissPermissionDialog()
+        super.onDestroy()
+    }
+
     private fun requestNextMissingPermission() {
         when {
-            !canDrawOverlays() -> {
-                AlertDialog.Builder(this)
-                    .setTitle("Overlay Permission Required")
-                    .setMessage("This app needs permission to display over other apps so the phone status indicator can appear in the status bar.")
-                    .setPositiveButton("OK") { _, _ ->
-                        overlayPermissionLauncher.launch(
-                            Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                "package:$packageName".toUri(),
-                            ),
-                        )
-                    }
-                    .setNegativeButton("Cancel") { _, _ ->
-                        finish()
-                    }
-                    .setCancelable(false)
-                    .show()
+            !canDrawOverlays() -> showPermissionDialog(
+                key = "overlay",
+                title = "Overlay Permission Required",
+                message = "This app needs permission to display over other apps so the phone status indicator can appear in the status bar.",
+            ) {
+                overlayPermissionLauncher.launch(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        "package:$packageName".toUri(),
+                    ),
+                )
             }
-            !isAccessibilityEnabled() -> {
-                AlertDialog.Builder(this)
-                    .setTitle("Accessibility Permission Required")
-                    .setMessage("One more step: enable the \"Phone Status\" accessibility service.\n\nIt lets the indicator sit next to the other status icons and hide when the status bar hides. It only reads the status bar — it performs no actions.")
-                    .setPositiveButton("OK") { _, _ ->
-                        accessibilityLauncher.launch(
-                            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS),
-                        )
-                    }
-                    .setNegativeButton("Cancel") { _, _ ->
-                        finish()
-                    }
-                    .setCancelable(false)
-                    .show()
+            !isAccessibilityEnabled() -> showPermissionDialog(
+                key = "accessibility",
+                title = "Accessibility Permission Required",
+                message = "One more step: enable the \"Phone Status\" accessibility service.\n\nIt lets the indicator sit next to the other status icons and hide when the status bar hides. It only reads the status bar — it performs no actions.",
+            ) {
+                accessibilityLauncher.launch(
+                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS),
+                )
             }
-            else -> startOverlayService()
+            else -> {
+                dismissPermissionDialog()
+                startOverlayService()
+            }
         }
+    }
+
+    private fun showPermissionDialog(
+        key: String,
+        title: String,
+        message: String,
+        onOk: () -> Unit,
+    ) {
+        // Already prompting for this exact permission — don't rebuild it on every
+        // resume (that would reset/flicker the dialog).
+        if (permissionDialog?.isShowing == true && dialogKey == key) return
+        dismissPermissionDialog()
+        dialogKey = key
+        permissionDialog = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK") { _, _ -> onOk() }
+            .setNegativeButton("Cancel") { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun dismissPermissionDialog() {
+        permissionDialog?.dismiss()
+        permissionDialog = null
+        dialogKey = null
     }
 
     private fun canDrawOverlays() = Settings.canDrawOverlays(this)
