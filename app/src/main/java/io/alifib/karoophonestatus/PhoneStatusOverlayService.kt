@@ -62,6 +62,10 @@ class PhoneStatusOverlayService : Service() {
     private var connected = false
     private var inRide = false
 
+    // Which glyph is currently set on the overlay (ic_phone connected vs
+    // ic_phone_off disconnected), so render() only swaps on change.
+    private var currentIconRes = R.drawable.ic_phone
+
     override fun onCreate() {
         super.onCreate()
         this.startForeground(NOTIFICATION_ID, buildNotification())
@@ -103,17 +107,19 @@ class PhoneStatusOverlayService : Service() {
 
     private fun render() {
         val visible = StatusBarState.barShown
-        // If we are recording/paused (Karoo ride state), or if the status bar we
-        // are anchored to belongs to the ride app (which uses black icons even
-        // when idle/pre-ride), use black. The system status bar is
-        // "com.android.systemui" (white icons); the ride app and its variants
-        // (io.hammerhead.ride) use black icons.
+        // Match the color of the bar we are actually mirroring, not the Karoo
+        // ride state: the native icons' color is decided by whichever app draws
+        // the top row. The system status bar is "com.android.systemui" (white
+        // icons); the ride app and its variants (io.hammerhead.ride) use black
+        // icons. Keying off the anchor package (rather than also OR-ing in
+        // [inRide]) means that when a ride is recording/paused but the user has
+        // backed out to the white systemui bar, we correctly turn white too.
         val inRideApp = StatusBarState.packageName != null &&
             StatusBarState.packageName != "com.android.systemui"
 
         val color = if (!connected) {
-            Color.parseColor("#FFBF00") // Amber
-        } else if (inRide || inRideApp) {
+            Color.parseColor("#FF0000") // Bold red — must stand out when disconnected
+        } else if (inRideApp) {
             Color.BLACK
         } else {
             Color.WHITE
@@ -126,7 +132,22 @@ class PhoneStatusOverlayService : Service() {
             Log.i(TAG, "render $logLine")
         }
 
-        overlayView.setColorFilter(color)
+        // Use a bolder, slashed phone glyph when disconnected so the red state
+        // reads as an alert; the plain outline is kept for the (subtle,
+        // native-like) connected states. Only swap when it actually changes —
+        // render() runs on every reposition tick.
+        val iconRes = if (!connected) R.drawable.ic_phone_off else R.drawable.ic_phone
+        if (iconRes != currentIconRes) {
+            currentIconRes = iconRes
+            overlayView.setImageResource(iconRes)
+        }
+
+        // Tint via imageTintList (not setColorFilter): our drawables are
+        // stroke-only outlines, and a SRC_ATOP color filter tints such vectors
+        // unreliably (it was rendering black regardless of the requested color).
+        // imageTintList goes through the vector's own setTintList and colors the
+        // stroke correctly.
+        overlayView.imageTintList = android.content.res.ColorStateList.valueOf(color)
         if (!visible) {
             if (overlayView.visibility != View.GONE) overlayView.visibility = View.GONE
             return

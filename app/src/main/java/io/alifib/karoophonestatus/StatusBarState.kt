@@ -18,12 +18,12 @@ object StatusBarState {
     var anchorLeftPx: Int = 0
         private set
 
-    /** Top edge (screen px) of the status bar. */
+    /** Top edge (screen px) of the anchor icon's box; the overlay centers on it. */
     @Volatile
     var barTopPx: Int = 0
         private set
 
-    /** Height (px) of the status bar. */
+    /** Height (px) of the anchor icon's box; the overlay centers within it. */
     @Volatile
     var barHeightPx: Int = 0
         private set

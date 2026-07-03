@@ -71,6 +71,7 @@ class StatusBarMonitorService : AccessibilityService() {
         val rightClusterMinX = screenRight / 3
 
         var anchorLeft = Int.MAX_VALUE
+        var rowTop = 0
         var rowBottom = 0
         var anchorPackage: String? = null
         for (w in wins) {
@@ -84,6 +85,7 @@ class StatusBarMonitorService : AccessibilityService() {
                 if (labelled && node.isVisibleToUser && topRow && b.left >= rightClusterMinX && b.width() > 0) {
                     if (b.left < anchorLeft) {
                         anchorLeft = b.left
+                        rowTop = b.top
                         rowBottom = b.bottom
                         anchorPackage = node.packageName?.toString()
                     }
@@ -94,11 +96,17 @@ class StatusBarMonitorService : AccessibilityService() {
         if (anchorLeft == Int.MAX_VALUE) {
             StatusBarState.update(shown = false, anchorLeft = 0, barTop = 0, barHeight = 0, pkg = null)
         } else {
+            // Report the anchor icon's own vertical box (top + height) so the
+            // overlay can center itself on the anchor's midline. Anchoring to
+            // [0, bottom] instead made the icon ride too high whenever the
+            // left-most node was short and sat lower than the bar top — e.g. a
+            // 3-digit "100%" battery label becoming the left-most node.
+            val rowHeight = rowBottom - rowTop
             StatusBarState.update(
                 shown = true,
                 anchorLeft = anchorLeft,
-                barTop = 0,
-                barHeight = if (rowBottom > 0) rowBottom else (45 * resources.displayMetrics.density).toInt(),
+                barTop = rowTop,
+                barHeight = if (rowHeight > 0) rowHeight else (26 * resources.displayMetrics.density).toInt(),
                 pkg = anchorPackage,
             )
         }

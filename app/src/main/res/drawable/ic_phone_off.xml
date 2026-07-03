@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Disconnected-state glyph: a phone with a bold diagonal slash. Drawn with
+     heavier strokes than ic_phone (the connected outline) so the red
+     disconnected state reads as an alert rather than a subtle status icon.
+     Same 14x24 viewport as ic_phone so it stays pixel-aligned in the bar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="24dp"
+    android:viewportWidth="14"
+    android:viewportHeight="24">
+    <!-- Phone body (thicker than the connected outline). -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.2"
+        android:pathData="M2.6,1 L11.4,1 A1.6,1.6 0 0 1 13,2.6 L13,21.4 A1.6,1.6 0 0 1 11.4,23 L2.6,23 A1.6,1.6 0 0 1 1,21.4 L1,2.6 A1.6,1.6 0 0 1 2.6,1 Z" />
+    <!-- Bold diagonal slash across the phone. -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round"
+        android:pathData="M1.5,22.5 L12.5,1.5" />
+</vector>
