@@ -1,0 +1,15 @@
+{
+  "id": "io.alifib.karoophonestatus",
+  "name": "Phone Status",
+  "version": "0.1.0",
+  "developer": "alifib",
+  "license": "MIT",
+  "summary": "Native phone connection status indicator for Karoo.",
+  "description": "Adds a native-looking phone connection status icon to the Karoo status bar. The icon adapts to the screen (white on launcher, black in-ride) and turns amber if the connection is lost. \n\nNote: This is an independent project and is not affiliated with Hammerhead Navigation Inc. or SRAM.",
+  "tags": [
+    "utility",
+    "status"
+  ],
+  "apkUrl": "https://github.com/alifib/karoo-phonestatus/releases/latest/download/app-debug.apk",
+  "updateUrl": "https://raw.githubusercontent.com/alifib/karoo-phonestatus/main/karoo-app-manifest.json"
+}
