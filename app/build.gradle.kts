@@ -18,8 +18,8 @@ android {
         applicationId = "io.alifib.karoophonestatus"
         minSdk = 26      // Karoo 2 = Android 8 (API 26), Karoo 3 = Android 12
         targetSdk = 33   // < 34 keeps foreground-service-type rules relaxed; matches karoo-powerbar
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 4
+        versionName = "0.4.0"
     }
 
     buildTypes {
