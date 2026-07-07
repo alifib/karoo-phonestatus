@@ -32,10 +32,18 @@ jobs:
           # GITHUB_TOKEN can read GitHub Packages (incl. karoo-ext) within Actions.
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Release signing keystore (base64) + passwords. Without these the APK
+          # builds unsigned and cannot be installed on-device.
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew :app:assembleRelease
 
       - name: Rename APK
-        run: mv app/build/outputs/apk/release/app-release-unsigned.apk karoo-phonestatus.apk
+        # Signed release output is app-release.apk (unsigned would be
+        # app-release-unsigned.apk); fail loudly if signing didn't happen.
+        run: mv app/build/outputs/apk/release/app-release.apk karoo-phonestatus.apk
 
       - name: Delete existing release if present
         run: gh release delete "${{ github.ref_name }}" --yes || true
